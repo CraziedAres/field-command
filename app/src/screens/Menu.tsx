@@ -1,0 +1,89 @@
+import { useState } from 'preact/hooks';
+import { KINDS, ARMY, MOVE } from '@fc/engine';
+import { NAME, SHORT } from '../labels.ts';
+import { OnlineMenu } from '../online/OnlineMenu.tsx';
+import { LEVELS, type Level } from '../bot/client.ts';
+import type { Side } from '@fc/engine';
+
+export function Menu({ canResume, onResume, onNew, onComputer, navigate }: {
+  canResume: boolean; onResume: () => void; onNew: (maxDays?: number) => void;
+  onComputer: (maxDays: number | undefined, human: Side, level: Level) => void; navigate: (to: string) => void;
+}) {
+  const [maxDays, setMaxDays] = useState('');
+  const [level, setLevel] = useState<Level>('medium');
+  const [humanSide, setHumanSide] = useState<Side | 'random'>('blue');
+  const days = maxDays ? Number(maxDays) : undefined;
+  return (
+    <div class="menu">
+      <h1>Field Command</h1>
+      <p class="lede">Two armies, one board, simultaneous secret orders. Remove the enemy General to win.</p>
+      <label class="field day-limit">
+        Day limit for new games
+        <select value={maxDays} onChange={(e) => setMaxDays(e.currentTarget.value)}>
+          <option value="">None</option>
+          <option value="30">30 days</option>
+          <option value="60">60 days</option>
+          <option value="100">100 days</option>
+        </select>
+      </label>
+      {canResume && (
+        <div class="row"><button class="primary" onClick={onResume}>Resume saved game</button></div>
+      )}
+      <div class="card">
+        <h2>Play the computer</h2>
+        <div class="row">
+          <label class="field">
+            Difficulty
+            <select value={level} onChange={(e) => setLevel(e.currentTarget.value as Level)}>
+              {(Object.keys(LEVELS) as Level[]).map((l) => <option key={l} value={l}>{LEVELS[l].label}</option>)}
+            </select>
+          </label>
+          <label class="field">
+            You play
+            <select value={humanSide} onChange={(e) => setHumanSide(e.currentTarget.value as Side | 'random')}>
+              <option value="blue">Blue</option>
+              <option value="red">Red</option>
+              <option value="random">Random</option>
+            </select>
+          </label>
+        </div>
+        <p class="muted small">{LEVELS[level].blurb}</p>
+        <button
+          class="primary"
+          onClick={() => onComputer(days, humanSide === 'random' ? (Math.random() < 0.5 ? 'blue' : 'red') : humanSide, level)}
+        >
+          Start game
+        </button>
+      </div>
+      <OnlineMenu maxDays={days} navigate={navigate} />
+      <div class="card">
+        <h2>Hot-seat game</h2>
+        <p class="muted">Both players share this device and pass it between turns.</p>
+        <div class="row">
+          <button class="primary" onClick={() => onNew(days)}>New game</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Recommended setups</h2>
+        <p class="muted">Strong deployments found by the optimizer, to study or to use.</p>
+        <button onClick={() => navigate('/results')}>View recommended setups</button>
+      </div>
+      <div class="card">
+        <h2>Units</h2>
+        <table class="units-table">
+          <thead><tr><th></th><th>Unit</th><th>Count</th><th>Move</th></tr></thead>
+          <tbody>
+            {KINDS.map((k, i) => (
+              <tr key={k}><td><span class="chip">{SHORT[k]}</span></td><td>{NAME[k]}</td><td>{ARMY[i]}</td><td>{MOVE[i]}</td></tr>
+            ))}
+          </tbody>
+        </table>
+        <p class="muted small">
+          Forest: Infantry beats Cavalry and Guerrillas; Guerrillas beat Cavalry. Open field: Cavalry beats Infantry and
+          Guerrillas; Guerrillas beat Infantry. Within an arm 1st beats 2nd, 2nd beats 3rd, 3rd beats 1st. Everything beats
+          the General; Infantry, Cavalry and Guerrillas beat Artillery. Guns fire after clashes, further at targets below them.
+        </p>
+      </div>
+    </div>
+  );
+}

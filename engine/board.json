@@ -1,0 +1,601 @@
+{
+ "_note": "Field Command board. Rows A-K (A = Blue home edge, K = Red home edge), columns 1-11. Terrain: forest | open. Elevation 1-3. Board is 180-degree symmetric: X(r,c) == X(K-r, 12-c).",
+ "rows": [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K"
+ ],
+ "cols": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11
+ ],
+ "squares": {
+  "A1": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "A2": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "A3": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "A4": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "A5": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "A6": {
+   "terrain": "open",
+   "elevation": 3
+  },
+  "A7": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "A8": {
+   "terrain": "open",
+   "elevation": 3
+  },
+  "A9": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "A10": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "A11": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "B1": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "B2": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "B3": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "B4": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "B5": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "B6": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "B7": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "B8": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "B9": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "B10": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "B11": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "C1": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "C2": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "C3": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "C4": {
+   "terrain": "open",
+   "elevation": 3
+  },
+  "C5": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "C6": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "C7": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "C8": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "C9": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "C10": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "C11": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "D1": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "D2": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "D3": {
+   "terrain": "open",
+   "elevation": 3
+  },
+  "D4": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "D5": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "D6": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "D7": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "D8": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "D9": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "D10": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "D11": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "E1": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "E2": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "E3": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "E4": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "E5": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "E6": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "E7": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "E8": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "E9": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "E10": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "E11": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "F1": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "F2": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "F3": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "F4": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "F5": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "F6": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "F7": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "F8": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "F9": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "F10": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "F11": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "G1": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "G2": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "G3": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "G4": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "G5": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "G6": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "G7": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "G8": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "G9": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "G10": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "G11": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "H1": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "H2": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "H3": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "H4": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "H5": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "H6": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "H7": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "H8": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "H9": {
+   "terrain": "open",
+   "elevation": 3
+  },
+  "H10": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "H11": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "I1": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "I2": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "I3": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "I4": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "I5": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "I6": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "I7": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "I8": {
+   "terrain": "open",
+   "elevation": 3
+  },
+  "I9": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "I10": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "I11": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "J1": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "J2": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "J3": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "J4": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "J5": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "J6": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "J7": {
+   "terrain": "forest",
+   "elevation": 3
+  },
+  "J8": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "J9": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "J10": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "J11": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "K1": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "K2": {
+   "terrain": "open",
+   "elevation": 1
+  },
+  "K3": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "K4": {
+   "terrain": "open",
+   "elevation": 3
+  },
+  "K5": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "K6": {
+   "terrain": "open",
+   "elevation": 3
+  },
+  "K7": {
+   "terrain": "open",
+   "elevation": 2
+  },
+  "K8": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "K9": {
+   "terrain": "forest",
+   "elevation": 2
+  },
+  "K10": {
+   "terrain": "forest",
+   "elevation": 1
+  },
+  "K11": {
+   "terrain": "forest",
+   "elevation": 1
+  }
+ },
+ "deployment": {
+  "blue": [
+   "A1",
+   "A2",
+   "A3",
+   "A4",
+   "A5",
+   "A6",
+   "A7",
+   "A8",
+   "A9",
+   "A10",
+   "A11",
+   "B1",
+   "B2",
+   "B3",
+   "B4",
+   "B5",
+   "B6",
+   "B7",
+   "B8",
+   "B9",
+   "B10",
+   "B11",
+   "C1",
+   "C2",
+   "C3",
+   "C4",
+   "C5",
+   "C6",
+   "C7",
+   "C8",
+   "D1",
+   "D2",
+   "D3",
+   "D4",
+   "D5",
+   "D6",
+   "E1",
+   "E2",
+   "E3",
+   "E4"
+  ],
+  "red": [
+   "G8",
+   "G9",
+   "G10",
+   "G11",
+   "H6",
+   "H7",
+   "H8",
+   "H9",
+   "H10",
+   "H11",
+   "I4",
+   "I5",
+   "I6",
+   "I7",
+   "I8",
+   "I9",
+   "I10",
+   "I11",
+   "J1",
+   "J2",
+   "J3",
+   "J4",
+   "J5",
+   "J6",
+   "J7",
+   "J8",
+   "J9",
+   "J10",
+   "J11",
+   "K1",
+   "K2",
+   "K3",
+   "K4",
+   "K5",
+   "K6",
+   "K7",
+   "K8",
+   "K9",
+   "K10",
+   "K11"
+  ]
+ }
+}

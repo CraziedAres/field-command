@@ -1,0 +1,25 @@
+{
+  "name": "field-command",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "engine",
+    "app",
+    "server",
+    "solver"
+  ],
+  "scripts": {
+    "dev": "npm -w app run dev",
+    "build": "npm -w app run build",
+    "test": "node --test \"engine/test/**/*.test.ts\" \"server/test/**/*.test.ts\" \"solver/test/**/*.test.ts\"",
+    "typecheck": "tsc -p engine --noEmit && tsc -p app --noEmit && tsc -p server --noEmit && tsc -p server/test --noEmit && tsc -p solver --noEmit",
+    "dev:server": "npm -w server run dev",
+    "deploy": "npm -w server run deploy",
+    "tournament": "npm -w solver run tournament --",
+    "optimize": "npm -w solver run optimize --"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}
