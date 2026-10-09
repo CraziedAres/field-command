@@ -17,6 +17,21 @@ export function Menu({ canResume, onResume, onNew, onComputer, navigate }: {
     <div class="menu">
       <h1>Field Command</h1>
       <p class="lede">Two armies, one board, simultaneous secret orders. Remove the enemy General to win.</p>
+      <div class="card rules">
+        <h2>How to play</h2>
+        <ol>
+          <li><b>Deploy.</b> Each side secretly fills its 40 starting squares, one unit per square. Both armies are revealed together.</li>
+          <li><b>Give orders.</b> Each day both players secretly order up to 12 units. A unit moves up to its allowance in
+            straight steps (a diagonal costs 2) and may jump over any unit. Friends may swap squares but not share one; an
+            illegal order leaves that unit where it is.</li>
+          <li><b>Move together.</b> All orders happen at once; only where units end up matters.</li>
+          <li><b>Clash.</b> Enemies ending on the same square fight. The winner depends on the units and the terrain (see
+            Units below); identical units remove each other.</li>
+          <li><b>Gunfire.</b> Then every surviving gun removes all enemies except Guerrillas within range: 1 square on its own
+            level, 2 one level down, 3 two levels down, none uphill.</li>
+          <li><b>Win.</b> Remove the enemy General. If both Generals fall on the same day, it's a draw.</li>
+        </ol>
+      </div>
       <label class="field day-limit">
         Day limit for new games
         <select value={maxDays} onChange={(e) => setMaxDays(e.currentTarget.value)}>
