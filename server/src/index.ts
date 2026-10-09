@@ -1,7 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import { opponent, type Side } from '@fc/engine';
 import {
-  RoomError, addPush, awaiting, deploy, join, newRoom, seatOf, submitOrders, viewFor, type Room,
+  RoomError, addPush, awaiting, deploy, join, newRoom, rename, seatOf, submitOrders, viewFor, type Room,
 } from './room.ts';
 import { sendPush, type Vapid } from './push.ts';
 
@@ -24,17 +24,17 @@ export class GameRoom extends DurableObject<Env> {
     return room;
   }
 
-  async create(code: string, side: Side, origin: string, maxDays?: number) {
+  async create(code: string, side: Side, origin: string, maxDays?: number, name?: unknown) {
     if (await this.ctx.storage.get('room')) throw new RoomError('exists');
     const token = randomToken();
-    await this.ctx.storage.put('room', newRoom(code, side, token, origin, maxDays));
+    await this.ctx.storage.put('room', newRoom(code, side, token, origin, maxDays, name));
     return { token, side };
   }
 
-  async join() {
+  async join(name?: unknown) {
     const room = await this.load();
     const token = randomToken();
-    const side = join(room, token);
+    const side = join(room, token, name);
     await this.changed(room, side);
     return { token, side };
   }
@@ -60,6 +60,14 @@ export class GameRoom extends DurableObject<Env> {
     return viewFor(room, side);
   }
 
+  async rename(token: string, name: unknown) {
+    const room = await this.load();
+    const side = seatOf(room, token);
+    rename(room, side, name);
+    await this.changed(room, side, false);
+    return viewFor(room, side);
+  }
+
   async subscribe(token: string, subscription: unknown) {
     const room = await this.load();
     addPush(room, seatOf(room, token), subscription);
@@ -67,7 +75,7 @@ export class GameRoom extends DurableObject<Env> {
   }
 
   /** Save, tell connected clients to refresh, and notify the other player if it's now their move. */
-  private async changed(room: Room, actor: Side) {
+  private async changed(room: Room, actor: Side, notify = true) {
     await this.ctx.storage.put('room', room);
     for (const ws of this.ctx.getWebSockets()) {
       try {
@@ -77,7 +85,7 @@ export class GameRoom extends DurableObject<Env> {
       }
     }
     const other = opponent(actor);
-    if (awaiting(room, other)) this.ctx.waitUntil(this.notify(room, other));
+    if (notify && awaiting(room, other)) this.ctx.waitUntil(this.notify(room, other));
   }
 
   private async notify(room: Room, side: Side) {
@@ -137,7 +145,7 @@ async function api(request: Request, url: URL, env: Env): Promise<Response> {
     for (let attempt = 0; attempt < 5; attempt++) {
       const code = randomCode();
       try {
-        const seat = await env.GAMES.get(env.GAMES.idFromName(code)).create(code, side, url.origin, maxDays);
+        const seat = await env.GAMES.get(env.GAMES.idFromName(code)).create(code, side, url.origin, maxDays, b.name);
         return json({ code, ...seat });
       } catch (e) {
         if (!(e instanceof Error) || e.message !== 'exists') throw e;
@@ -146,7 +154,7 @@ async function api(request: Request, url: URL, env: Env): Promise<Response> {
     throw new RoomError('Could not allocate a game code');
   }
 
-  const m = /^\/api\/games\/([A-Z0-9]{6})(?:\/(join|deploy|orders|push|ws))?$/.exec(url.pathname);
+  const m = /^\/api\/games\/([A-Z0-9]{6})(?:\/(join|deploy|orders|name|push|ws))?$/.exec(url.pathname);
   if (!m) return json({ error: 'Not found' }, 404);
   const [, code, action] = m;
   const room = env.GAMES.get(env.GAMES.idFromName(code));
@@ -161,11 +169,13 @@ async function api(request: Request, url: URL, env: Env): Promise<Response> {
   const b = await body();
   switch (action) {
     case 'join':
-      return json(await room.join());
+      return json(await room.join(b.name));
     case 'deploy':
       return json(await room.deploy(token, b.deployment));
     case 'orders':
       return json(await room.orders(token, Number(b.day), b.orders));
+    case 'name':
+      return json(await room.rename(token, b.name));
     case 'push':
       await room.subscribe(token, b.subscription);
       return json({ ok: true });

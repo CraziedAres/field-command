@@ -11,7 +11,9 @@ import { Orders } from '../screens/Orders.tsx';
 import { Reveal } from '../screens/Reveal.tsx';
 import { SIDE_NAME, describe } from '../labels.ts';
 import type { DayRecord } from '../store.ts';
-import { ApiError, api, identities, saveIdentity, socketUrl, type Identity, type PlayerView } from './api.ts';
+import {
+  ApiError, MAX_NAME, api, identities, lastName, rememberName, saveIdentity, socketUrl, type Identity, type PlayerView,
+} from './api.ts';
 import { Invite, PlayerLink } from './Invite.tsx';
 import { Notify } from './Notify.tsx';
 
@@ -109,9 +111,11 @@ export function Online({ code, navigate }: { code: string; navigate: (to: string
 
   const side = view.you;
   const foe = opponent(side);
+  const foeName = view.opponentName ?? SIDE_NAME[foe];
   const errorBox = error && <p class="notice">{error}</p>;
   const sidebar = (
     <>
+      <Names view={view} onRename={(n) => act(() => api.rename(code, id.token, n))} />
       {!view.opponentJoined && <Invite code={code} />}
       {view.phase !== 'over' && <Notify code={code} id={id} onChange={setId} />}
       <PlayerLink code={code} token={id.token} />
@@ -143,7 +147,7 @@ export function Online({ code, navigate }: { code: string; navigate: (to: string
         </>
       );
     }
-    const msg = !view.opponentJoined ? `Waiting for an opponent to join game ${code}.` : `Waiting for ${SIDE_NAME[foe]} to deploy.`;
+    const msg = !view.opponentJoined ? `Waiting for an opponent to join game ${code}.` : `Waiting for ${foeName} to deploy.`;
     return (
       <Waiting title="Deployment sent" side={side} units={deploymentUnits(view.myDeployment, side)} message={msg}>
         {errorBox}{sidebar}
@@ -182,7 +186,7 @@ export function Online({ code, navigate }: { code: string; navigate: (to: string
   return (
     <Waiting
       title={`Day ${state.day + 1} · orders sent`} side={side} units={stateUnits(state)}
-      arrows={view.myOrders} message={`Waiting for ${SIDE_NAME[foe]}'s orders. You can change yours until they arrive.`}
+      arrows={view.myOrders} message={`Waiting for ${foeName}'s orders. You can change yours until they arrive.`}
     >
       <button onClick={() => setEditing(true)}>Change my orders</button>
       {errorBox}{sidebar}
@@ -220,13 +224,41 @@ const stateUnits = (s: GameState): UnitView[] => {
   return out;
 };
 
+/** Both players' names, with an inline editor for your own. */
+function Names({ view, onRename }: { view: PlayerView; onRename: (name: string) => void }) {
+  const [draft, setDraft] = useState<string | null>(null);
+  const foe = opponent(view.you);
+  if (draft !== null) {
+    return (
+      <form class="names row" onSubmit={(e) => { e.preventDefault(); rememberName(draft); onRename(draft); setDraft(null); }}>
+        <input
+          class="text" placeholder="Your name" maxLength={MAX_NAME} value={draft} aria-label="Your name" autoFocus
+          onInput={(e) => setDraft(e.currentTarget.value)}
+        />
+        <button type="submit" class="primary">Save</button>
+        <button type="button" onClick={() => setDraft(null)}>Cancel</button>
+      </form>
+    );
+  }
+  return (
+    <p class="names">
+      <span class={`dot ${view.you}`} /><b>{view.myName ?? 'You'}</b>
+      <button class="link" onClick={() => setDraft(view.myName ?? '')}>{view.myName ? 'rename' : 'set name'}</button>
+      <span class="muted"> vs </span>
+      <span class={`dot ${foe}`} /><b>{view.opponentJoined ? view.opponentName ?? SIDE_NAME[foe] : '…'}</b>
+    </p>
+  );
+}
+
 function Join({ code, onJoined, navigate }: { code: string; onJoined: (id: Identity) => void; navigate: (to: string) => void }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [name, setName] = useState(lastName);
   async function join() {
     setBusy(true);
     try {
-      const { token, side } = await api.join(code);
+      rememberName(name);
+      const { token, side } = await api.join(code, name);
       onJoined({ token, side, seenDay: 0, added: Date.now() });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -239,6 +271,13 @@ function Join({ code, onJoined, navigate }: { code: string; onJoined: (id: Ident
       <p class="eyebrow">Invitation</p>
       <h1>Game {code}</h1>
       <p>You've been invited to a game of Field Command.</p>
+      <label class="field join-name">
+        Your name
+        <input
+          class="text" placeholder="optional" maxLength={MAX_NAME} value={name}
+          onInput={(e) => setName(e.currentTarget.value)}
+        />
+      </label>
       <button class="primary big" disabled={busy} onClick={join}>Join this game</button>
       {error && (
         <p class="notice">

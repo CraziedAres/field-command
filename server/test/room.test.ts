@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {
   createRng, deserializeState, randomDeployment, randomOrders, resolveDay, serializeState, type Order,
 } from '@fc/engine';
-import { addPush, awaiting, deploy, join, newRoom, seatOf, submitOrders, viewFor, type Room } from '../src/room.ts';
+import { addPush, awaiting, cleanName, deploy, join, newRoom, rename, seatOf, submitOrders, viewFor, type Room } from '../src/room.ts';
 
 function setup(seed = 1) {
   const rng = createRng(seed);
@@ -137,4 +137,20 @@ test('a day limit ends the game in a draw', () => {
   submitOrders(room, 'red', 1, []);
   assert.equal(viewFor(room, 'blue').phase, 'over');
   assert.deepEqual(viewFor(room, 'blue').result, { winner: null, reason: 'max-days' });
+});
+
+test('names: set on create/join, cleaned, visible to both, renamable', () => {
+  const room = newRoom('NAM234', 'red', 'r', 'https://example.test', undefined, '  Napoleon  ');
+  assert.equal(viewFor(room, 'red').myName, 'Napoleon');
+  assert.equal(viewFor(room, 'red').opponentName, null);
+  join(room, 'b');
+  assert.equal(viewFor(room, 'blue').myName, null);
+  rename(room, 'blue', 'Wellington\u0000 \n the  Duke');
+  assert.equal(viewFor(room, 'blue').myName, 'Wellington the Duke');
+  assert.equal(viewFor(room, 'red').opponentName, 'Wellington the Duke');
+  rename(room, 'blue', '   ');
+  assert.equal(viewFor(room, 'red').opponentName, null);
+  assert.equal(cleanName('x'.repeat(40)), 'x'.repeat(24));
+  assert.equal(cleanName('🎖'.repeat(30)), '🎖'.repeat(24)); // counts characters, never splits one
+  assert.throws(() => cleanName(42), /Invalid name/);
 });

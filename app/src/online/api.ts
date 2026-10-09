@@ -34,6 +34,26 @@ export function saveIdentity(code: string, id: Identity | null): void {
   }
 }
 
+const NAME_KEY = 'field-command.name.v1';
+export const MAX_NAME = 24;
+
+/** The name this device last used, offered as the default for the next game. */
+export function lastName(): string {
+  try {
+    return localStorage.getItem(NAME_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
+export function rememberName(name: string): void {
+  try {
+    localStorage.setItem(NAME_KEY, name.trim());
+  } catch {
+    // storage unavailable
+  }
+}
+
 export class ApiError extends Error {
   constructor(message: string, readonly status: number) {
     super(message);
@@ -55,9 +75,11 @@ async function call<T>(path: string, init: { method?: string; token?: string; bo
 }
 
 export const api = {
-  create: (side: Side, maxDays?: number) =>
-    call<{ code: string; token: string; side: Side }>('/api/games', { method: 'POST', body: { side, maxDays } }),
-  join: (code: string) => call<{ token: string; side: Side }>(`/api/games/${code}/join`, { method: 'POST', body: {} }),
+  create: (side: Side, maxDays?: number, name?: string) =>
+    call<{ code: string; token: string; side: Side }>('/api/games', { method: 'POST', body: { side, maxDays, name } }),
+  join: (code: string, name?: string) => call<{ token: string; side: Side }>(`/api/games/${code}/join`, { method: 'POST', body: { name } }),
+  rename: (code: string, token: string, name: string) =>
+    call<PlayerView>(`/api/games/${code}/name`, { method: 'POST', token, body: { name } }),
   view: (code: string, token: string) => call<PlayerView>(`/api/games/${code}`, { token }),
   deploy: (code: string, token: string, deployment: Deployment) =>
     call<PlayerView>(`/api/games/${code}/deploy`, { method: 'POST', token, body: { deployment } }),

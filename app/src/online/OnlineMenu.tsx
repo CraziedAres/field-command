@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import type { Side } from '@fc/engine';
 import { SIDE_NAME } from '../labels.ts';
-import { api, identities, parseGameInput, saveIdentity, type PlayerView } from './api.ts';
+import { MAX_NAME, api, identities, lastName, parseGameInput, rememberName, saveIdentity, type PlayerView } from './api.ts';
 
 function status(v: PlayerView | null | undefined): string {
   if (v === undefined) return '…';
@@ -16,6 +16,7 @@ function status(v: PlayerView | null | undefined): string {
 
 export function OnlineMenu({ maxDays, navigate }: { maxDays?: number; navigate: (to: string) => void }) {
   const [side, setSide] = useState<Side>('blue');
+  const [name, setName] = useState(lastName);
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -35,7 +36,8 @@ export function OnlineMenu({ maxDays, navigate }: { maxDays?: number; navigate: 
     setBusy(true);
     setError('');
     try {
-      const g = await api.create(side, maxDays);
+      rememberName(name);
+      const g = await api.create(side, maxDays, name);
       saveIdentity(g.code, { token: g.token, side: g.side, seenDay: 0, added: Date.now() });
       navigate(`/g/${g.code}`);
     } catch (e) {
@@ -55,6 +57,15 @@ export function OnlineMenu({ maxDays, navigate }: { maxDays?: number; navigate: 
     <div class="card">
       <h2>Online game</h2>
       <p class="muted">Play on two devices. You get a link to send your opponent; no accounts needed.</p>
+      <div class="row">
+        <label class="field grow">
+          Your name
+          <input
+            class="text" placeholder="optional" maxLength={MAX_NAME} value={name}
+            onInput={(e) => setName(e.currentTarget.value)}
+          />
+        </label>
+      </div>
       <div class="row">
         <label class="field">
           Play as
@@ -81,6 +92,7 @@ export function OnlineMenu({ maxDays, navigate }: { maxDays?: number; navigate: 
               <li key={code}>
                 <a href={`/g/${code}`} onClick={(e) => { e.preventDefault(); navigate(`/g/${code}`); }}>
                   <span class={`dot ${id.side ?? ''}`} /> <b>{code}</b>
+                  {views[code]?.opponentName && <span class="vs">vs {views[code]!.opponentName}</span>}
                 </a>
                 <span class={`status${status(views[code]).startsWith('your move') ? ' yours' : ''}`}>{status(views[code])}</span>
                 <button

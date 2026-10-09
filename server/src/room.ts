@@ -14,6 +14,8 @@ export interface PushSub {
 
 export interface Seat {
   token: string;
+  /** What the player chose to be called in this game (shown to both players). */
+  name?: string;
   push: PushSub[];
 }
 
@@ -43,6 +45,8 @@ export interface PlayerView {
   maxDays?: number;
   phase: Phase;
   opponentJoined: boolean;
+  myName: string | null;
+  opponentName: string | null;
   myDeployment: Deployment | null;
   opponentDeployed: boolean;
   initial: SerializedState | null;
@@ -54,21 +58,36 @@ export interface PlayerView {
 
 export class RoomError extends Error {}
 
-export function newRoom(code: string, side: Side, token: string, origin: string, maxDays?: number): Room {
+export const MAX_NAME = 24;
+
+/** Trim and collapse whitespace, strip control characters and cap the length; empty means no name. */
+export function cleanName(raw: unknown): string | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== 'string') throw new RoomError('Invalid name');
+  const name = Array.from(raw.replace(/[\p{Cc}\p{Cf}]/gu, '').replace(/\s+/g, ' ').trim()).slice(0, MAX_NAME).join('').trim();
+  return name || undefined;
+}
+
+export function newRoom(code: string, side: Side, token: string, origin: string, maxDays?: number, name?: unknown): Room {
   if (maxDays !== undefined && !(Number.isInteger(maxDays) && maxDays > 0 && maxDays <= 1000)) throw new RoomError('Invalid day limit');
   return {
     code, created: Date.now(), origin, maxDays,
-    seats: { [side]: { token, push: [] } },
+    seats: { [side]: { token, name: cleanName(name), push: [] } },
     deployments: {}, initial: null, state: null, pending: {}, history: [],
   };
 }
 
 /** Take the free seat. */
-export function join(room: Room, token: string): Side {
+export function join(room: Room, token: string, name?: unknown): Side {
   const side = (['blue', 'red'] as const).find((s) => !room.seats[s]);
   if (!side) throw new RoomError('This game already has two players');
-  room.seats[side] = { token, push: [] };
+  room.seats[side] = { token, name: cleanName(name), push: [] };
   return side;
+}
+
+/** Set or clear (empty string) a player's name. Allowed at any time, even after the game ends. */
+export function rename(room: Room, side: Side, name: unknown): void {
+  room.seats[side]!.name = cleanName(name ?? '');
 }
 
 export function seatOf(room: Room, token: string): Side {
@@ -130,6 +149,8 @@ export function viewFor(room: Room, side: Side): PlayerView {
     maxDays: room.maxDays,
     phase: phase(room),
     opponentJoined: !!room.seats[other],
+    myName: room.seats[side]?.name ?? null,
+    opponentName: room.seats[other]?.name ?? null,
     myDeployment: room.deployments[side] ?? null,
     opponentDeployed: !!room.deployments[other],
     initial: room.initial,
