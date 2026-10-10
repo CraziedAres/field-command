@@ -6,8 +6,9 @@ import {
 } from '@fc/engine';
 import { Board, type Arrow, type Target, type UnitView } from '../components/Board.tsx';
 import { Forces } from '../components/Forces.tsx';
+import { UnitIcon } from '../components/Emblem.tsx';
 import { Log } from './Log.tsx';
-import { NAME, REASON, SHORT, SIDE_NAME, kindOf, matchup, moveOf } from '../labels.ts';
+import { NAME, REASON, SIDE_NAME, kindOf, matchup, moveOf } from '../labels.ts';
 import type { DayRecord } from '../store.ts';
 
 type Overlay = 'off' | 'enemy' | 'own';
@@ -92,7 +93,7 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
           </div>
           {selKind ? (
             <p class="selected-info">
-              <span class={`chip ${side}`}>{SHORT[selKind]}</span> {NAME[selKind]} on {squareName(state.pos[sel!])} ·
+              <span class={`chip ${side}`}><UnitIcon kind={selKind} /></span> {NAME[selKind]} on {squareName(state.pos[sel!])} ·
               moves {moveOf(selKind)}. Rings: <b class="win">green</b> wins, <b class="lose">red</b> loses,
               <b class="both"> orange</b> both fall (if the enemy stays put).
             </p>
@@ -106,7 +107,7 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
               const reason = problems.get(i);
               return (
                 <li key={i} class={reason ? 'bad' : ''}>
-                  <span class={`chip ${side}`}>{SHORT[kindOf(state.kind, u)]}</span>
+                  <span class={`chip ${side}`}><UnitIcon kind={kindOf(state.kind, u)} /></span>
                   {squareName(o.from)} → {squareName(o.to)}
                   {reason && <span class="why">fails: {REASON[reason]}</span>}
                   <button class="icon" aria-label="Remove order" onClick={() => setOrders(orders.filter((_, j) => j !== i))}>✕</button>

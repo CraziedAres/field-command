@@ -1,8 +1,11 @@
 import { ARMY, KINDS, opponent, sideOfUnit, type GameState, type Side } from '@fc/engine';
-import { NAME, SHORT, SIDE_NAME } from '../labels.ts';
+import { ABBR, NAME, SIDE_NAME } from '../labels.ts';
+import { UnitIcon } from './Emblem.tsx';
+import { useUnitStyle } from '../prefs.ts';
 
-/** Units left of each kind for both sides, the viewer's side first. */
+/** Units left of each kind for both sides, the viewer's side first. With emblems, the headings double as their key. */
 export function Forces({ state, side }: { state: GameState; side: Side }) {
+  const emblems = useUnitStyle() === 'emblems';
   const left: Record<Side, number[]> = { blue: KINDS.map(() => 0), red: KINDS.map(() => 0) };
   state.pos.forEach((sq, u) => {
     if (sq >= 0) left[sideOfUnit(u)][state.kind[u]]++;
@@ -12,7 +15,9 @@ export function Forces({ state, side }: { state: GameState; side: Side }) {
       <thead>
         <tr>
           <th />
-          {KINDS.map((k) => <th key={k} title={NAME[k]}>{SHORT[k]}</th>)}
+          {KINDS.map((k) => (
+            <th key={k} title={NAME[k]}><UnitIcon kind={k} />{emblems && <span class="abbr">{ABBR[k]}</span>}</th>
+          ))}
         </tr>
       </thead>
       <tbody>

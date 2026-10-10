@@ -1,6 +1,8 @@
 import { useState } from 'preact/hooks';
 import { A_WINS, ARMY, BOTH, KINDS, MOVE, combat } from '@fc/engine';
-import { NAME, SHORT } from '../labels.ts';
+import { NAME } from '../labels.ts';
+import { UnitIcon } from './Emblem.tsx';
+import { setUnitStyle, useUnitStyle } from '../prefs.ts';
 
 const CELL = {
   [A_WINS]: { mark: '✓', cls: 'win', word: 'wins' },
@@ -11,14 +13,21 @@ const LOSE = { mark: '✗', cls: 'lose', word: 'loses' };
 /** Menu card: unit counts and moves, plus who beats whom on each terrain. */
 export function UnitsCard() {
   const [forest, setForest] = useState(true);
+  const style = useUnitStyle();
   return (
     <div class="card units-card">
-      <h2>Units</h2>
+      <div class="matrix-head">
+        <h2>Units</h2>
+        <div class="seg" role="group" aria-label="Unit markers">
+          <button aria-pressed={style === 'emblems'} onClick={() => setUnitStyle('emblems')}>Emblems</button>
+          <button aria-pressed={style === 'letters'} onClick={() => setUnitStyle('letters')}>Letters</button>
+        </div>
+      </div>
       <table class="units-table">
         <thead><tr><th></th><th>Unit</th><th>Count</th><th>Move</th></tr></thead>
         <tbody>
           {KINDS.map((k, i) => (
-            <tr key={k}><td><span class="chip">{SHORT[k]}</span></td><td>{NAME[k]}</td><td>{ARMY[i]}</td><td>{MOVE[i]}</td></tr>
+            <tr key={k}><td><span class="chip"><UnitIcon kind={k} /></span></td><td>{NAME[k]}</td><td>{ARMY[i]}</td><td>{MOVE[i]}</td></tr>
           ))}
         </tbody>
       </table>
@@ -49,13 +58,13 @@ export function UnitsCard() {
           <thead>
             <tr>
               <th class="corner" title="Rows: your unit. Columns: the enemy unit.">you ↓</th>
-              {KINDS.map((k) => <th key={k} scope="col" title={NAME[k]}>{SHORT[k]}</th>)}
+              {KINDS.map((k) => <th key={k} scope="col" title={NAME[k]}><UnitIcon kind={k} /></th>)}
             </tr>
           </thead>
           <tbody>
             {KINDS.map((a, i) => (
               <tr key={a}>
-                <th scope="row" title={NAME[a]}>{SHORT[a]}</th>
+                <th scope="row" title={NAME[a]}><UnitIcon kind={a} /></th>
                 {KINDS.map((b, j) => {
                   const o = combat(i, j, forest);
                   const c = o === A_WINS || o === BOTH ? CELL[o] : LOSE;

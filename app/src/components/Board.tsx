@@ -1,7 +1,8 @@
 import type { Ref } from 'preact';
 import { BOARD, ROWS, SIZE, SQUARES, type Kind, type Side } from '@fc/engine';
 import { CELL, MARGIN, VIEW_H, VIEW_W, center, clientToSquare, squareAtGrid, topLeft } from '../geometry.ts';
-import { SHORT, type Matchup } from '../labels.ts';
+import type { Matchup } from '../labels.ts';
+import { TokenMark } from './Emblem.tsx';
 
 export interface UnitView {
   key: string | number;
@@ -157,7 +158,7 @@ function Unit({ u, view }: { u: UnitView; view: Side }) {
       style={{ transform: `translate(${c.x}px, ${c.y}px)`, opacity: u.hidden ? 0 : 1 }}
     >
       <circle r={36} class="token" />
-      <text class={`label${u.kind === 'GEN' ? ' star' : ''}`} y={u.kind === 'GEN' ? 13 : 11}>{SHORT[u.kind]}</text>
+      <TokenMark kind={u.kind} />
     </g>
   );
 }

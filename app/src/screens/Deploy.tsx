@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { ARMY, BOARD, KINDS, createRng, shuffle, sq as sqOf, squareName, type Deployment, type Kind, type Side } from '@fc/engine';
 import { Board, type UnitView } from '../components/Board.tsx';
 import { clientToSquare } from '../geometry.ts';
-import { NAME, SHORT, SIDE_NAME } from '../labels.ts';
+import { NAME, SIDE_NAME } from '../labels.ts';
+import { UnitIcon } from '../components/Emblem.tsx';
 import { drawFromMix, forSide, loadResults, type OptimizerResults } from '../results.ts';
 
 type Source = { type: 'tray'; kind: Kind } | { type: 'square'; sq: number };
@@ -139,7 +140,7 @@ export function Deploy({ side, onDone }: { side: Side; onDone: (d: Deployment) =
                   key={k} class={`tray-item ${side}${active ? ' active' : ''}`} disabled={left === 0}
                   onPointerDown={(e) => press({ type: 'tray', kind: k }, e)} title={NAME[k]}
                 >
-                  <span class="token-chip">{SHORT[k]}</span>
+                  <span class="token-chip"><UnitIcon kind={k} /></span>
                   <span class="tray-name">{NAME[k]}</span>
                   <span class="tray-count">×{left}</span>
                 </button>
@@ -161,7 +162,7 @@ export function Deploy({ side, onDone }: { side: Side; onDone: (d: Deployment) =
         </aside>
       </div>
       {ghost && (
-        <div class={`ghost ${side}`} style={{ left: `${ghost.x}px`, top: `${ghost.y}px` }}>{SHORT[ghost.kind]}</div>
+        <div class={`ghost ${side}`} style={{ left: `${ghost.x}px`, top: `${ghost.y}px` }}><UnitIcon kind={ghost.kind} /></div>
       )}
     </div>
   );

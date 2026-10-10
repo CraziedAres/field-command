@@ -6,6 +6,10 @@ import {
 export const SHORT: Record<Kind, string> = {
   GEN: '★', ART: 'Art', INF1: 'I1', INF2: 'I2', INF3: 'I3', CAV1: 'C1', CAV2: 'C2', CAV3: 'C3', GUE: 'Gu',
 };
+/** Short names for column headings next to the unit's mark. */
+export const ABBR: Record<Kind, string> = {
+  GEN: 'Gen', ART: 'Art', INF1: 'Inf 1', INF2: 'Inf 2', INF3: 'Inf 3', CAV1: 'Cav 1', CAV2: 'Cav 2', CAV3: 'Cav 3', GUE: 'Guer',
+};
 export const NAME: Record<Kind, string> = {
   GEN: 'General', ART: 'Artillery', INF1: '1st Infantry', INF2: '2nd Infantry', INF3: '3rd Infantry',
   CAV1: '1st Cavalry', CAV2: '2nd Cavalry', CAV3: '3rd Cavalry', GUE: 'Guerrillas',
