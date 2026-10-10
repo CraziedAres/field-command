@@ -5,6 +5,7 @@ import {
   type GameState, type Order, type Side,
 } from '@fc/engine';
 import { Board, type Arrow, type Target, type UnitView } from '../components/Board.tsx';
+import { Forces } from '../components/Forces.tsx';
 import { Log } from './Log.tsx';
 import { NAME, REASON, SHORT, SIDE_NAME, kindOf, matchup, moveOf } from '../labels.ts';
 import type { DayRecord } from '../store.ts';
@@ -13,7 +14,7 @@ type Overlay = 'off' | 'enemy' | 'own';
 
 /**
  * Tap one of your units, then a highlighted square, to queue an order. Highlighted friendly squares are
- * order targets too (for swaps and chains); tap the selected unit again to deselect.
+ * order targets too (for swaps and chains); tap the selected unit again to clear its order and deselect.
  */
 export function Orders({ state, side, history, onSubmit, initial = [], busy = false, extra }: {
   state: GameState; side: Side; history: DayRecord[]; onSubmit: (orders: Order[]) => void;
@@ -47,7 +48,10 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
     const u = unitAt(state, sq);
     const own = u >= 0 && sideOfUnit(u) === side;
     if (sel !== null) {
-      if (u === sel) return setSel(null);
+      if (u === sel) {
+        setOrders(orders.filter((o) => o.from !== state.pos[sel]));
+        return setSel(null);
+      }
       if (targets.has(sq)) {
         const from = state.pos[sel];
         const existing = orders.findIndex((o) => o.from === from);
@@ -78,6 +82,7 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
           <Board view={side} units={units} targets={targets} arrows={arrows} threat={threat} onSquareDown={onSquare} />
         </div>
         <aside class="panel">
+          <Forces state={state} side={side} />
           <div class="segmented" role="group" aria-label="Artillery overlay">
             {(['off', 'enemy', 'own'] as const).map((o) => (
               <button key={o} class={overlay === o ? 'on' : ''} onClick={() => setOverlay(o)}>
@@ -110,10 +115,10 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
             })}
           </ol>
           <div class="row">
-            <button onClick={() => { setOrders([]); setSel(null); }} disabled={!orders.length}>Clear orders</button>
             <button class={`primary ${side}`} disabled={busy} onClick={() => onSubmit(orders)}>
               {orders.length ? `Submit ${orders.length} order${orders.length > 1 ? 's' : ''}` : 'Submit (hold all)'}
             </button>
+            <button class="small" onClick={() => { setOrders([]); setSel(null); }} disabled={!orders.length}>Clear</button>
           </div>
           {extra}
           <h3>Log</h3>
