@@ -293,3 +293,7 @@ code { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; background
 @keyframes spin { to { transform: rotate(360deg); } }
 .ghost svg.glyph { width: 2.2rem; height: 2.2rem; }
 .matrix svg.glyph { margin: 0 auto; }
+.review { display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.review .segmented { flex: 1; min-width: 15rem; margin: 0; }
+.day-step { display: flex; align-items: center; gap: 0.1rem; font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
+.day-step button.icon { margin: 0; font-size: 1.3rem; line-height: 1; padding: 0.15rem 0.45rem; }

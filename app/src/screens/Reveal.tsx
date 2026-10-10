@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { KINDS, sideOfUnit, type DayEvent, type GameState, type Side } from '@fc/engine';
-import { Board, type Arrow, type UnitView } from '../components/Board.tsx';
+import { Board, type UnitView } from '../components/Board.tsx';
+import { dayMotion } from '../dayMotion.ts';
 import { Log } from './Log.tsx';
 import { SIDE_NAME, describe } from '../labels.ts';
 import type { DayRecord } from '../store.ts';
@@ -24,26 +25,7 @@ export function Reveal({ before, after, events, history, onContinue, onNewGame, 
     return () => clearTimeout(t);
   }, [step, playing]);
 
-  const { moved, clashed, shot, arrows, clashSquares, shots } = useMemo(() => {
-    const moved = before.pos.slice();
-    const clashed = new Set<number>(), shot = new Set<number>();
-    const arrows: Arrow[] = [], clashSquares: number[] = [], shots: { key: number; from: number; to: number }[] = [];
-    events.forEach((e, i) => {
-      if (e.type === 'move') {
-        moved[e.unit] = e.to;
-        arrows.push({ key: i, from: e.from, to: e.to, side: e.side, ok: true });
-      } else if (e.type === 'rejected') {
-        arrows.push({ key: i, from: e.order.from, to: e.order.to, side: e.side, ok: false });
-      } else if (e.type === 'confrontation') {
-        e.removed.forEach((u) => clashed.add(u));
-        clashSquares.push(e.square);
-      } else if (e.type === 'artillery') {
-        shot.add(e.target);
-        shots.push({ key: i, from: e.gun, to: e.target }); // unit ids; mapped to squares when drawn
-      }
-    });
-    return { moved, clashed, shot, arrows, clashSquares, shots };
-  }, [before, events]);
+  const { moved, clashed, shot, arrows, clashSquares, shots } = useMemo(() => dayMotion(before, events), [before, events]);
 
   const units: UnitView[] = [];
   before.pos.forEach((sq, u) => {

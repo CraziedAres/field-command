@@ -1,21 +1,25 @@
 import type { ComponentChildren } from 'preact';
 import { useMemo, useState } from 'preact/hooks';
 import {
-  MAX_ORDERS, opponent, reachable, resolveSideOrders, sideOfUnit, squareName, threatMap, unitAt, KINDS,
+  MAX_ORDERS, deserializeState, opponent, reachable, resolveSideOrders, sideOfUnit, squareName, threatMap, unitAt, KINDS,
   type GameState, type Order, type Side,
 } from '@fc/engine';
 import { Board, type Arrow, type Target, type UnitView } from '../components/Board.tsx';
 import { Forces } from '../components/Forces.tsx';
+import { dayMotion } from '../dayMotion.ts';
 import { UnitIcon } from '../components/Emblem.tsx';
 import { Log } from './Log.tsx';
 import { NAME, REASON, SIDE_NAME, kindOf, matchup, moveOf } from '../labels.ts';
 import type { DayRecord } from '../store.ts';
 
 type Overlay = 'off' | 'enemy' | 'own';
+/** Planning view, or a past day's positions before / after its moves. */
+type Review = 'plan' | 'before' | 'after';
 
 /**
  * Tap one of your units, then a highlighted square, to queue an order. Highlighted friendly squares are
  * order targets too (for swaps and chains); tap the selected unit again to clear its order and deselect.
+ * Under the board, Before / After replays a past day's moves for both sides.
  */
 export function Orders({ state, side, history, onSubmit, initial = [], busy = false, extra }: {
   state: GameState; side: Side; history: DayRecord[]; onSubmit: (orders: Order[]) => void;
@@ -25,6 +29,15 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
   const [sel, setSel] = useState<number | null>(null);
   const [overlay, setOverlay] = useState<Overlay>('off');
   const [notice, setNotice] = useState('');
+  const [review, setReview] = useState<Review>('plan');
+  const [dayIdx, setDayIdx] = useState(history.length - 1);
+
+  const past = useMemo(() => {
+    const rec = history[dayIdx];
+    if (!rec) return null;
+    const before = deserializeState(rec.before);
+    return { day: rec.day, before, ...dayMotion(before, rec.events) };
+  }, [history, dayIdx]);
 
   const preview = useMemo(() => resolveSideOrders(state, side, orders), [state, side, orders]);
   const problems = new Map(preview.rejected.map((r) => [r.index, r.reason]));
@@ -46,6 +59,7 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
 
   function onSquare(sq: number) {
     setNotice('');
+    if (review !== 'plan') return setReview('plan'); // tapping the board goes back to planning
     const u = unitAt(state, sq);
     const own = u >= 0 && sideOfUnit(u) === side;
     if (sel !== null) {
@@ -65,11 +79,23 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
     setSel(own ? u : null);
   }
 
+  const reviewing = review !== 'plan' && past !== null;
   const units: UnitView[] = [];
-  state.pos.forEach((sq, u) => {
-    if (sq >= 0) units.push({ key: u, side: sideOfUnit(u), kind: KINDS[state.kind[u]], sq, selected: u === sel });
-  });
-  const arrows: Arrow[] = orders.map((o, i) => ({ key: i, from: o.from, to: o.to, side, ok: !problems.has(i) }));
+  if (reviewing) {
+    const after = review === 'after';
+    past.before.pos.forEach((sq, u) => {
+      if (sq < 0) return;
+      const fell = past.clashed.has(u) || past.shot.has(u);
+      units.push({ key: u, side: sideOfUnit(u), kind: KINDS[past.before.kind[u]], sq: after ? past.moved[u] : sq, hidden: after && fell });
+    });
+  } else {
+    state.pos.forEach((sq, u) => {
+      if (sq >= 0) units.push({ key: u, side: sideOfUnit(u), kind: KINDS[state.kind[u]], sq, selected: u === sel });
+    });
+  }
+  const arrows: Arrow[] = reviewing
+    ? past.arrows
+    : orders.map((o, i) => ({ key: i, from: o.from, to: o.to, side, ok: !problems.has(i) }));
   const selKind = sel !== null ? kindOf(state.kind, sel) : null;
 
   return (
@@ -80,7 +106,26 @@ export function Orders({ state, side, history, onSubmit, initial = [], busy = fa
       </header>
       <div class="layout">
         <div class="board-wrap">
-          <Board view={side} units={units} targets={targets} arrows={arrows} threat={threat} onSquareDown={onSquare} />
+          <Board
+            view={side} units={units} arrows={arrows} onSquareDown={onSquare} animate={review !== 'plan'}
+            targets={reviewing ? undefined : targets} threat={reviewing ? null : threat}
+          />
+          {past && (
+            <div class="review">
+              <div class="day-step">
+                <button class="icon" aria-label="Earlier day" disabled={dayIdx === 0} onClick={() => setDayIdx(dayIdx - 1)}>‹</button>
+                <span>Day {past.day} moves</span>
+                <button class="icon" aria-label="Later day" disabled={dayIdx === history.length - 1} onClick={() => setDayIdx(dayIdx + 1)}>›</button>
+              </div>
+              <div class="segmented" role="group" aria-label="Review a past day">
+                {(['plan', 'before', 'after'] as const).map((r) => (
+                  <button key={r} class={review === r ? 'on' : ''} onClick={() => { setReview(r); setSel(null); }}>
+                    {r === 'plan' ? 'Your orders' : r === 'before' ? 'Before' : 'After'}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <aside class="panel">
           <Forces state={state} side={side} />
